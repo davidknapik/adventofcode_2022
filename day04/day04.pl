@@ -8,7 +8,8 @@ my $input_file = 'input.txt' ;
 if ($TEST) {
 	$input_file = 'test_input.txt' ;
 }
-my $total = 0 ;
+my $totalContained = 0 ;
+my $totalOverlap = 0 ;
 
 # read in input file
 open(FH, '<', $input_file) 
@@ -20,20 +21,56 @@ while(<FH>) {
 	printf("Line: %s\n",$line) ;
 	
 	if (isContained($line)){
-		$total++;
+		$totalContained++;
+	}
+	if (isOverlap($line)){
+		$totalOverlap++;
 	}
 
+	printf("\n");
 
 }
 
 close(FH);
 
 printf("\n");
-printf("Total: %s\n", $total);
+printf("Total Contained: %s\n", $totalContained);
+printf("Total Overlap: %s\n", $totalOverlap);
 
 
 exit;
 
+sub isOverlap($){
+	my $assignment = shift ;
+	my $isOverlap = 1 ; # 0=no overlap, 1=overlap
+
+	# split out assignment by user & start/stop
+	($a1, $a2, $b1, $b2) = split(/[-,]/, $assignment);
+	
+	#
+	# check if the A set is fully 'before' the B set
+	# check if the B set is fully 'before' the A set
+	# if neither of these is true then the sets must overlap
+	#
+
+	# A before B
+	# A:.234......
+	# B:.....567..
+	if(($a1 < $b1) && ($a2 < $b1)){
+		$isOverlap = 0 ;
+	}
+
+	# B before A
+	# A:.....567..
+	# B:.234......
+	if(($b1 < $a1) && ($b2 < $a1)){
+		$isOverlap = 0 ;
+	}
+
+	printf("Overlap: %s\n", $isOverlap) if $DEBUG;
+
+	return $isOverlap;
+}
 
 sub isContained($){
 	my $assignment = shift ;
@@ -49,7 +86,7 @@ sub isContained($){
 	# B containted in A
 	($isContained=1) if( ($b1>=$a1) && ($b2<=$a2));
 
-	printf("Contained: %s\n\n", $isContained) if $DEBUG;
+	printf("Contained: %s\n", $isContained) if $DEBUG;
 
 	return $isContained;
 
