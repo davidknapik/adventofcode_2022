@@ -22,14 +22,15 @@ while(<FH>) {
 	chomp(my $line = $_) ;
 	# printf("Line: %s\n",$line) ;
 
-	# check for init line
+	# check for init line and send to array
 	if ($line =~ /\[/) {
 		&init_array($line);
 	}
 
 	# check for 'move instruction'
 	if ($line =~ /^move/) {
-		&move_crate($line);
+		#&move_crate($line);
+		&move_crate2($line);
 
 	}
 	&print_array();
@@ -71,6 +72,28 @@ sub move_crate($){
 
 }
 
+sub move_crate2($){
+	my $line = shift;
+
+	my @tmp = ();
+
+	my ($move_qty, $from_col, $to_col) = (split(/\s/,$line))[1,3,5];
+
+	printf("move_qty: %s, from_col: %s, to_col:%s\n", $move_qty, $from_col, $to_col);
+
+	for (my $qty = 0; $qty < $move_qty; $qty++){
+		my $pop = pop( @{$array[$from_col-1]});
+		push(@tmp, $pop) ; 
+	}
+
+	for (my $qty = 0; $qty < $move_qty; $qty++){
+		my $pop = pop(@tmp);
+		push(@{$array[$to_col-1]}, $pop);		
+		printf("Moving: %s from %s to %s\n", $pop, $from_col-1, $to_col-1);
+	}
+
+
+}
 
 sub init_array($){
 
