@@ -9,7 +9,8 @@ my $TEST = 0;
 my $input_file = 'input.txt' ;
 
 my $loc = 0;
-my ($c1, $c2, $c3, $c4) = '';
+# my ($c1, $c2, $c3, $c4) = '';
+my @buffer = () ;
 
 
 if ($TEST) {
@@ -28,19 +29,58 @@ while(<FH>) {
 
 		printf("%4d : ",$loc+1);
 
-		if(&store(substr($line,$loc,1))){
-			printf("Found Sequence: %s%s%s%s at location %s\n",$c1,$c2,$c3,$c4,$loc+1);
-		}
+		# if(&store(substr($line,$loc,1))){
+		# 	printf("Found Sequence: %s%s%s%s at location %s\n",$c1,$c2,$c3,$c4,$loc+1);
+		# }
 
+		if(&tobuf(substr($line,$loc,1))){
+			printf("Found Sequence at location %s\n",$loc+1);
+		}
 	}
 	printf("\n");
-	($c1, $c2, $c3, $c4) = ''
+	# ($c1, $c2, $c3, $c4) = ''
+	@buffer = ();
+
 }
 
 
 exit;
 
+sub tobuf($){
+	my $char = shift ; 
+
+	# changed to populating an array of variable size and checking for duplicates in the array
+	
+	my $buf_size = 14 ;
+	my $unique = 0 ;
+
+	printf("char: %s\n", $char);
+
+	push(@buffer,$char);
+
+	if (scalar @buffer > $buf_size){
+		shift(@buffer);
+	}
+
+	if (scalar @buffer < $buf_size){
+		return 0 ;
+	}
+
+	#check for duplicates
+	for my $i (0..@buffer-1){
+		for my $j ($i+1..@buffer-1){
+			#printf("%s:%s %s:%s\n", $i,$buffer[$i], $j,$buffer[$j]);
+			if ($buffer[$i] eq $buffer[$j]){
+				#printf("Found Duplicate\n");
+				return 0 ;
+			}
+		}
+	}
+	return 1 ;
+}
+
 sub store($){
+	#first attempt, when number of characters to compare was low
 	my $char = shift ; 
 	my $unique = 0 ;
 	printf("char: %s\n", $char);
